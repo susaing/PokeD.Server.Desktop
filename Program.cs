@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 
 using PCLStorage;
@@ -13,7 +14,7 @@ using PokeD.Server.Windows.WrapperInstances;
 
 namespace PokeD.Server.Windows
 {
-    public static partial class Program
+    public static partial class Program 
     {
         static Server Server { get; set; }
 
@@ -28,7 +29,7 @@ namespace PokeD.Server.Windows
         }
 
 
-        public static void Main(string[] args)
+        public static void Main(params string[] args)
         {
             try
             {
@@ -44,7 +45,7 @@ namespace PokeD.Server.Windows
             Start(args);
         }
 
-        private static void Start(string[] args)
+        private static void Start(params string[] args)
         {
             foreach (var arg in args)
             {
@@ -138,7 +139,7 @@ CallStack:
 You should report this error if it is reproduceable or you could not solve it by yourself.
 Go To: http://pokemon3d.net/forum/threads/12686/ to report this crash there.
 [/CODE]",
-                Environment.Version,
+                Assembly.GetExecutingAssembly().GetName().Version,
                 Environment.OSVersion,
                 Type.GetType("Mono.Runtime") != null ? "Mono": ".NET",
                 Environment.Is64BitOperatingSystem ? "64 Bit" : "32 Bit",
