@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace PokeD.Server.Windows
+namespace PokeD.Server.Desktop
 {
     public static class ConsoleManager
     {
@@ -20,18 +20,12 @@ namespace PokeD.Server.Windows
         private static int ExcecutionMilliseconds { get { return _excecutionMilliseconds; } set { _excecutionMilliseconds = value; _screenFPS = 1000 / _excecutionMilliseconds; UpdateTitle(); } }
         private static int _excecutionMilliseconds;
 
-        private static List<string> ConsoleOutput { get; }
-        private static Queue<string> ConsoleInput { get; }
-        private static string CurrentConsoleInput { get; set; }
+        private static List<string> ConsoleOutput { get; } = new List<string>();
+        private static Queue<string> ConsoleInput { get; } = new Queue<string>();
+        private static string CurrentConsoleInput { get; set; } = string.Empty;
 
         public static bool InputAvailable => ConsoleInput.Count > 0;
 
-        static ConsoleManager()
-        {
-            ConsoleOutput = new List<string>();
-            ConsoleInput = new Queue<string>();
-            CurrentConsoleInput = string.Empty;
-        }
 
         public static void WriteLine(string text)
         {
@@ -43,13 +37,14 @@ namespace PokeD.Server.Windows
             return ConsoleInput.Dequeue();
         }
 
-        public static void Start()
+
+        public static void Start(int fps = 60)
         {
             if (ConsoleManagerThread != null && ConsoleManagerThread.IsAlive)
                 return;
 
             ScreenBufferArray = new char[Console.WindowWidth, Console.WindowHeight];
-            ScreenFPS = 60;
+            ScreenFPS = fps;
 
             Console.CursorVisible = true;
 
@@ -66,7 +61,7 @@ namespace PokeD.Server.Windows
             var watch = Stopwatch.StartNew();
             while (true)
             {
-                ScreenBufferArray = new char[Console.WindowWidth, Console.WindowHeight];
+                Array.Clear(ScreenBufferArray, 0, ScreenBufferArray.Length);
                 ScreenBuffer = string.Empty;
 
                 DrawLine($"Main              thread execution time: {Program.MainThreadTime} ms",               0);

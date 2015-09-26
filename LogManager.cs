@@ -5,7 +5,7 @@ using PCLStorage;
 
 using PokeD.Core.Wrappers;
 
-namespace PokeD.Server.Windows
+namespace PokeD.Server.Desktop
 {
     public static class LogManager
     {
@@ -13,7 +13,7 @@ namespace PokeD.Server.Windows
 
         static LogManager()
         {
-            LogFile = FileSystemWrapper.LogFolder.CreateFileAsync($"{DateTime.Now:yyyy-MM-dd_HH.mm.ss}", CreationCollisionOption.OpenIfExists).Result;
+            LogFile = FileSystemWrapper.LogFolder.CreateFileAsync($"{DateTime.Now:yyyy-MM-dd_HH.mm.ss}.log", CreationCollisionOption.OpenIfExists).Result;
         }
 
         public static void WriteLine(string message)

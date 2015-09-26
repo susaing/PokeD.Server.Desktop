@@ -3,16 +3,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 
 using PCLStorage;
 
 using PokeD.Core.Wrappers;
 
-using PokeD.Server.Windows.Extensions;
-using PokeD.Server.Windows.WrapperInstances;
+using PokeD.Server.Desktop.WrapperInstances;
 
-namespace PokeD.Server.Windows
+namespace PokeD.Server.Desktop
 {
     public static partial class Program 
     {
@@ -31,10 +31,7 @@ namespace PokeD.Server.Windows
 
         public static void Main(params string[] args)
         {
-            try
-            {
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) => CatchErrorObject(e.ExceptionObject);
-            }
+            try { AppDomain.CurrentDomain.UnhandledException += (sender, e) => CatchErrorObject(e.ExceptionObject); }
             catch (Exception exception)
             {
                 // Maybe it will cause a recursive exception.
@@ -77,11 +74,11 @@ namespace PokeD.Server.Windows
                     }
                 }
 
-                if(Server != null)
-                    Server.Update();
-                else
-                    return;
-                
+                if(Server == null || (Server != null && Server.IsDisposing))
+                    break;
+
+                Server.Update();
+
 
 
                 if (watch.ElapsedMilliseconds < 10)
@@ -96,17 +93,6 @@ namespace PokeD.Server.Windows
                 watch.Reset();
                 watch.Start();
             }
-        }
-
-
-        private static void FatalExceptionObject(object exceptionObject)
-        {
-            var exception = exceptionObject as Exception ?? new NotSupportedException("Unhandled exception doesn't derive from System.Exception: " + exceptionObject);
-            FatalExceptionHandler(exception);
-        }
-        private static void FatalExceptionHandler(Exception exception)
-        {
-            LogManager.WriteLine(exception.GetExceptionDetails());
         }
 
 
@@ -125,37 +111,63 @@ Operating system: {1} [{2}]
 Core architecture: {3}
 System language: {4}
 Logical processors: {5}
---------------------------------------------------
-            
-Error information:
-Message: {6}
-InnerException: {7}
-HelpLink: {8}
-Source: {9}
---------------------------------------------------
-CallStack:
-{10}
+{6}
 --------------------------------------------------
 You should report this error if it is reproduceable or you could not solve it by yourself.
-Go To: http://pokemon3d.net/forum/threads/12686/ to report this crash there.
+Go To: http://pokemon3d.net/forum/threads/12901/ to report this crash there.
 [/CODE]",
                 Assembly.GetExecutingAssembly().GetName().Version,
                 Environment.OSVersion,
-                Type.GetType("Mono.Runtime") != null ? "Mono": ".NET",
+                Type.GetType("Mono.Runtime") != null ? "Mono" : ".NET",
                 Environment.Is64BitOperatingSystem ? "64 Bit" : "32 Bit",
                 CultureInfo.CurrentCulture.EnglishName,
                 Environment.ProcessorCount,
-                ex.Message,
-                ex.InnerException?.Message ?? "Nothing",
-                string.IsNullOrWhiteSpace(ex.HelpLink) ? "Nothing" : ex.HelpLink,
-                ex.Source,
-                ex.InnerException == null ? ex.StackTrace : ex.InnerException.StackTrace + Environment.NewLine + ex.StackTrace);
+                BuildErrorStringRecursive(ex));
 
-            var folder = FileSystemWrapper.LogFolder.CreateFolderAsync("Crash", CreationCollisionOption.OpenIfExists).Result;
-            var crash = folder.CreateFileAsync($"{DateTime.Now:yyyy-MM-dd_HH.mm.ss}", CreationCollisionOption.OpenIfExists).Result;
-            using (var stream = crash.OpenAsync(PCLStorage.FileAccess.ReadAndWrite).Result)
+            var crashFolder = FileSystemWrapper.LogFolder.CreateFolderAsync("Crash", CreationCollisionOption.OpenIfExists).Result;
+            var crashFile = crashFolder.CreateFileAsync($"{DateTime.Now:yyyy-MM-dd_HH.mm.ss}.log", CreationCollisionOption.OpenIfExists).Result;
+            using (var stream = crashFile.OpenAsync(PCLStorage.FileAccess.ReadAndWrite).Result)
             using (var writer = new StreamWriter(stream))
                 writer.Write(errorLog);
+
+#if !DEBUG
+            Environment.Exit((int) ExitCodes.UnknownError);
+#endif
+        }
+
+        private static string BuildErrorStringRecursive(Exception ex)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat(@"
+--------------------------------------------------
+Error information:
+Type: {0}
+Message: {1}
+HelpLink: {2}
+Source: {3}
+TargetSite : {4}
+--------------------------------------------------
+CallStack:
+{5}
+",
+                ex.GetType().FullName,
+                ex.Message,
+                string.IsNullOrWhiteSpace(ex.HelpLink) ? "Empty" : ex.HelpLink,
+                ex.Source,
+                ex.TargetSite,
+                ex.StackTrace);
+
+            if (ex.InnerException != null)
+            {
+                sb.AppendFormat(@"
+--------------------------------------------------
+InnerException:
+{0}
+",
+                    BuildErrorStringRecursive(ex.InnerException));
+            }
+
+            return sb.ToString();
         }
     }
 }
