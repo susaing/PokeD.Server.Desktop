@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using PokeD.Core.Wrappers;
+using Aragas.Core.Wrappers;
 
 namespace PokeD.Server.Desktop.WrapperInstances
 {
@@ -22,7 +22,6 @@ namespace PokeD.Server.Desktop.WrapperInstances
             Threads.Add(thread);
             return Threads.IndexOf(thread);
         }
-
         public void AbortThread(int id)
         {
             if(Threads.Count >= id)
@@ -43,6 +42,11 @@ namespace PokeD.Server.Desktop.WrapperInstances
         public void Sleep(int milliseconds)
         {
             Thread.Sleep(milliseconds);
+        }
+
+        public void QueueUserWorkItem(Aragas.Core.Wrappers.WaitCallback waitCallback)
+        {
+            ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(waitCallback));
         }
     }
 }

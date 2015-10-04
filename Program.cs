@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
-using PCLStorage;
+using Aragas.Core.Wrappers;
 
-using PokeD.Core.Wrappers;
+using PCLStorage;
 
 using PokeD.Server.Desktop.WrapperInstances;
 
@@ -21,6 +21,7 @@ namespace PokeD.Server.Desktop
 
         static Program()
         {
+            AppDomainWrapper.Instance = new AppDomainWrapperInstance();
             FileSystemWrapper.Instance = new FileSystemWrapperInstance();
             NetworkTCPClientWrapper.Instance = new NetworkTCPClientWrapperInstance();
             NetworkTCPServerWrapper.Instance = new NetworkTCPServerWrapperInstance();

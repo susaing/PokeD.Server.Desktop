@@ -2,14 +2,14 @@
 using System.Net;
 using System.Net.Sockets;
 
-using PokeD.Core.Wrappers;
+using Aragas.Core.Wrappers;
 
 namespace PokeD.Server.Desktop.WrapperInstances
 {
     public class NetworkTCPClientWrapperInstance : INetworkTCPClient
     {
         public string IP => !IsDisposed && Client != null ? ((IPEndPoint) Client.Client.RemoteEndPoint).Address.ToString() : "";
-        public bool Connected => !IsDisposed && Client != null && Client.Connected;
+        public bool Connected => !IsDisposed && Client != null && Client.Client.Connected;
         public int DataAvailable => !IsDisposed && Client != null ? Client.Available : 0;
 
 
