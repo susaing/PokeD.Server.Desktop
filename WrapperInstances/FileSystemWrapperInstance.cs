@@ -10,6 +10,9 @@ namespace PokeD.Server.Desktop.WrapperInstances
         public IFolder SettingsFolder { get; }
         public IFolder LogFolder { get; }
         public IFolder CrashLogFolder { get; }
+        public IFolder LuaFolder { get; }
+        public IFolder AssemblyFolder { get; }
+        public IFolder DatabaseFolder { get; }
 
         public FileSystemWrapperInstance()
         {
@@ -19,6 +22,8 @@ namespace PokeD.Server.Desktop.WrapperInstances
             SettingsFolder  = baseDirectory.CreateFolderAsync("Settings", CreationCollisionOption.OpenIfExists).Result;
             LogFolder       = baseDirectory.CreateFolderAsync("Logs", CreationCollisionOption.OpenIfExists).Result;
             CrashLogFolder  = LogFolder.CreateFolderAsync("Crash", CreationCollisionOption.OpenIfExists).Result;
+            LuaFolder       = baseDirectory.CreateFolderAsync("Lua", CreationCollisionOption.OpenIfExists).Result;
+            DatabaseFolder  = baseDirectory.CreateFolderAsync("Database", CreationCollisionOption.OpenIfExists).Result;
         }
     }
 }

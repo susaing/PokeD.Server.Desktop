@@ -23,12 +23,19 @@ namespace PokeD.Server.Desktop
         {
             AppDomainWrapper.Instance = new AppDomainWrapperInstance();
             FileSystemWrapper.Instance = new FileSystemWrapperInstance();
-            NetworkTCPClientWrapper.Instance = new NetworkTCPClientWrapperInstance();
-            NetworkTCPServerWrapper.Instance = new NetworkTCPServerWrapperInstance();
             InputWrapper.Instance = new InputWrapperInstance();
+
+            //LuaWrapper.Instance = new NLuaWrapperInstance();
+            LuaWrapper.Instance = new MoonLuaWrapperInstance();
+
+            DatabaseWrapper.Instance = new SQLiteDatabase();
+            //DatabaseWrapper.Instance = new FileDBDatabase();
+            //DatabaseWrapper.Instance = new SiaqodbDatabase();
+
+            TCPClientWrapper.Instance = new TCPClientWrapperInstance();
+            TCPListenerWrapper.Instance = new TCPServerWrapperInstance();
             ThreadWrapper.Instance = new ThreadWrapperInstance();
         }
-
 
         public static void Main(params string[] args)
         {
@@ -49,6 +56,18 @@ namespace PokeD.Server.Desktop
             {
                 if (arg.StartsWith("-enableconsole"))
                     ConsoleManager.Start();
+
+                if (arg.StartsWith("-usenlua"))
+                    LuaWrapper.Instance = new NLuaWrapperInstance();
+
+                //if (arg.StartsWith("-usensqlite"))
+                //    DatabaseWrapper.Instance = new SQLiteDatabase();
+
+                if (arg.StartsWith("-usenfiledb"))
+                    DatabaseWrapper.Instance = new FileDBDatabase();
+
+                if (arg.StartsWith("-usensiaqodb"))
+                    DatabaseWrapper.Instance = new SiaqodbDatabase();
             }
 
             Server = new Server();
