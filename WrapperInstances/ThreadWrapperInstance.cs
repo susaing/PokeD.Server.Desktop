@@ -5,7 +5,7 @@ using Aragas.Core.Wrappers;
 
 namespace PokeD.Server.Desktop.WrapperInstances
 {
-    public class ThreadImplementation : IThread
+    public class CustomThread : IThread
     {
         private readonly Thread _thread;
 
@@ -14,7 +14,7 @@ namespace PokeD.Server.Desktop.WrapperInstances
 
         public bool IsRunning { get; }
 
-        internal ThreadImplementation(Action action) { _thread = new Thread(new ThreadStart(action)); }
+        internal CustomThread(Action action) { _thread = new Thread(new ThreadStart(action)); }
 
         public void Start() { _thread.Start(); }
 
@@ -23,7 +23,7 @@ namespace PokeD.Server.Desktop.WrapperInstances
 
     public class ThreadWrapperInstance : IThreadWrapper
     {
-        public IThread CreateThread(Action action) { return new ThreadImplementation(action); }
+        public IThread CreateThread(Action action) { return new CustomThread(action); }
 
         public void Sleep(int milliseconds) { Thread.Sleep(milliseconds); }
 
